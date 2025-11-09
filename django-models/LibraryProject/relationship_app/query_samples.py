@@ -131,7 +131,7 @@ def list_all_books_in_library(library_name):
 def retrieve_librarian_for_library(library_name):
     """
     Query 3: Retrieve the librarian for a specific library
-    Demonstrates OneToOneField relationship
+    Demonstrates OneToOneField relationship using Librarian.objects.get(library=library)
     """
     print("\n" + "=" * 60)
     print("QUERY 3: Librarian for a specific library")
@@ -139,11 +139,12 @@ def retrieve_librarian_for_library(library_name):
     
     try:
         library = Library.objects.get(name=library_name)
-        librarian = library.librarian
         
-        print(f"\nLibrarian for {library_name}:")
-        print(f"  Name: {librarian.name}")
-        print(f"  Library: {librarian.library.name}")
+        # Method using Librarian.objects.get(library=library) - the required format
+        print(f"\nMethod - Using Librarian.objects.get(library=library):")
+        librarian = Librarian.objects.get(library=library)
+        print(f"  Librarian: {librarian.name}")
+        print(f"  Manages: {librarian.library.name}")
         
         return librarian
         
@@ -152,6 +153,35 @@ def retrieve_librarian_for_library(library_name):
         return None
     except Librarian.DoesNotExist:
         print(f"No librarian found for library '{library_name}'.")
+        return None
+
+def retrieve_librarian_alternative_methods(library_name):
+    """
+    Alternative methods to retrieve librarian showing different approaches
+    """
+    print("\n" + "=" * 60)
+    print("ALTERNATIVE LIBRARIAN QUERY METHODS")
+    print("=" * 60)
+    
+    try:
+        library = Library.objects.get(name=library_name)
+        
+        print(f"\nComparison for {library_name}:")
+        
+        # Method 1: Using Librarian.objects.get(library=library) - required format
+        print("1. Using Librarian.objects.get(library=library):")
+        librarian1 = Librarian.objects.get(library=library)
+        print(f"   - {librarian1.name}")
+        
+        # Method 2: Using reverse relationship (for reference)
+        print("\n2. Using library.librarian (reverse relationship):")
+        librarian2 = library.librarian
+        print(f"   - {librarian2.name}")
+        
+        return librarian1
+        
+    except (Library.DoesNotExist, Librarian.DoesNotExist) as e:
+        print(f"Error: {e}")
         return None
 
 def additional_demonstration_queries():
@@ -177,6 +207,15 @@ def additional_demonstration_queries():
     for library in libraries_with_orwell:
         print(f"  - {library.name}")
 
+    # Query using Librarian.objects.get(library=...)
+    print("\n3. Librarian for University Library using objects.get:")
+    try:
+        uni_library = Library.objects.get(name="University Library")
+        uni_librarian = Librarian.objects.get(library=uni_library)
+        print(f"  - {uni_librarian.name} manages {uni_librarian.library.name}")
+    except (Library.DoesNotExist, Librarian.DoesNotExist):
+        print("  - Library or librarian not found")
+
 def main():
     """Main function to run all query demonstrations"""
     print("RELATIONSHIP QUERY SAMPLES")
@@ -185,11 +224,12 @@ def main():
     # Setup sample data
     author1, author2, library1, library2 = setup_sample_data()
     
-    # Run the required queries - using objects.filter(author=author) format
+    # Run the required queries
     query_all_books_by_specific_author("George Orwell")
     query_all_books_by_specific_author_alternative("J.K. Rowling")
     list_all_books_in_library("City Central Library")
     retrieve_librarian_for_library("City Central Library")
+    retrieve_librarian_alternative_methods("University Library")
     
     # Additional demonstrations
     additional_demonstration_queries()
