@@ -56,27 +56,50 @@ def setup_sample_data():
 def query_all_books_by_specific_author(author_name):
     """
     Query 1: Get all books by a specific author
-    Demonstrates ForeignKey reverse relationship using related_name='books'
+    Demonstrates ForeignKey reverse relationship using objects.filter(author=author)
     """
     print("=" * 60)
     print("QUERY 1: All books by a specific author")
     print("=" * 60)
     
     try:
-        # Method 1: Using filter
-        print(f"\nMethod 1 - Using filter (Books by {author_name}):")
-        books_method1 = Book.objects.filter(author__name=author_name)
-        for book in books_method1:
-            print(f"  - {book.title}")
-        
-        # Method 2: Using reverse relationship (more efficient)
-        print(f"\nMethod 2 - Using reverse relationship (Books by {author_name}):")
+        # Get the author object first
         author = Author.objects.get(name=author_name)
-        books_method2 = author.books.all()  # Using related_name='books'
-        for book in books_method2:
+        
+        # Method using objects.filter(author=author) - the required format
+        print(f"\nMethod - Using objects.filter(author=author) (Books by {author_name}):")
+        books = Book.objects.filter(author=author)
+        for book in books:
             print(f"  - {book.title}")
             
-        return books_method2
+        return books
+        
+    except Author.DoesNotExist:
+        print(f"Author '{author_name}' not found.")
+        return []
+
+def query_all_books_by_specific_author_alternative(author_name):
+    """
+    Alternative version showing both methods for comparison
+    """
+    try:
+        author = Author.objects.get(name=author_name)
+        
+        print(f"\nComparison for {author_name}:")
+        
+        # Method 1: Using objects.filter(author=author) - the required format
+        print("1. Using Book.objects.filter(author=author):")
+        books1 = Book.objects.filter(author=author)
+        for book in books1:
+            print(f"   - {book.title}")
+        
+        # Method 2: Using reverse relationship (for reference)
+        print("\n2. Using author.books.all() (reverse relationship):")
+        books2 = author.books.all()
+        for book in books2:
+            print(f"   - {book.title}")
+            
+        return books1
         
     except Author.DoesNotExist:
         print(f"Author '{author_name}' not found.")
@@ -92,21 +115,14 @@ def list_all_books_in_library(library_name):
     print("=" * 60)
     
     try:
-        # Method 1: Using filter
-        print(f"\nMethod 1 - Using filter (Books in {library_name}):")
         library = Library.objects.get(name=library_name)
-        books_method1 = library.books.all()  # Using ManyToMany relationship
-        for book in books_method1:
-            print(f"  - {book.title} by {book.author.name}")
         
-        # Method 2: Using through model (if you need more complex queries)
-        print(f"\nMethod 2 - Count and details (Books in {library_name}):")
-        book_count = library.books.count()
-        print(f"  Total books in library: {book_count}")
-        for book in library.books.select_related('author').all():
-            print(f"  - '{book.title}' by {book.author.name}")
+        print(f"\nBooks in {library_name}:")
+        books = library.books.all()
+        for book in books:
+            print(f"  - {book.title} by {book.author.name}")
             
-        return books_method1
+        return books
         
     except Library.DoesNotExist:
         print(f"Library '{library_name}' not found.")
@@ -122,17 +138,12 @@ def retrieve_librarian_for_library(library_name):
     print("=" * 60)
     
     try:
-        # Method 1: Using direct lookup
-        print(f"\nMethod 1 - Direct lookup (Librarian for {library_name}):")
         library = Library.objects.get(name=library_name)
-        librarian = library.librarian  # Using OneToOne reverse relationship
-        print(f"  Librarian: {librarian.name}")
-        print(f"  Manages: {librarian.library.name}")
+        librarian = library.librarian
         
-        # Method 2: Using filter
-        print(f"\nMethod 2 - Using filter (Librarian for {library_name}):")
-        librarian_method2 = Librarian.objects.get(library__name=library_name)
-        print(f"  Librarian: {librarian_method2.name}")
+        print(f"\nLibrarian for {library_name}:")
+        print(f"  Name: {librarian.name}")
+        print(f"  Library: {librarian.library.name}")
         
         return librarian
         
@@ -149,24 +160,22 @@ def additional_demonstration_queries():
     print("ADDITIONAL DEMONSTRATION QUERIES")
     print("=" * 60)
     
-    # Query: Libraries that have books by a specific author
-    print("\n1. Libraries that have books by George Orwell:")
-    libraries_with_orwell = Library.objects.filter(books__author__name="George Orwell").distinct()
+    # Query using objects.filter with author
+    print("\n1. All books by J.K. Rowling using objects.filter:")
+    try:
+        rowling = Author.objects.get(name="J.K. Rowling")
+        rowling_books = Book.objects.filter(author=rowling)
+        for book in rowling_books:
+            print(f"  - {book.title}")
+    except Author.DoesNotExist:
+        print("  J.K. Rowling not found")
+    
+    # Query: Libraries that have books by a specific author using objects.filter
+    print("\n2. Libraries with books by George Orwell (using objects.filter):")
+    orwell_books = Book.objects.filter(author__name="George Orwell")
+    libraries_with_orwell = Library.objects.filter(books__in=orwell_books).distinct()
     for library in libraries_with_orwell:
         print(f"  - {library.name}")
-    
-    # Query: Authors whose books are in a specific library
-    print("\n2. Authors with books in City Central Library:")
-    authors_in_central = Author.objects.filter(books__libraries__name="City Central Library").distinct()
-    for author in authors_in_central:
-        print(f"  - {author.name}")
-    
-    # Query: Books count per author
-    print("\n3. Book count per author:")
-    from django.db.models import Count
-    authors_with_counts = Author.objects.annotate(book_count=Count('books'))
-    for author in authors_with_counts:
-        print(f"  - {author.name}: {author.book_count} books")
 
 def main():
     """Main function to run all query demonstrations"""
@@ -176,8 +185,9 @@ def main():
     # Setup sample data
     author1, author2, library1, library2 = setup_sample_data()
     
-    # Run the required queries
+    # Run the required queries - using objects.filter(author=author) format
     query_all_books_by_specific_author("George Orwell")
+    query_all_books_by_specific_author_alternative("J.K. Rowling")
     list_all_books_in_library("City Central Library")
     retrieve_librarian_for_library("City Central Library")
     
