@@ -10,7 +10,15 @@ from django.contrib.auth.forms import UserCreationForm
 def book_list(request):
     books = Book.objects.all()
     return render(request, 'relationship_app/list_books.html', {'books': books})
-
+def register(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('login')
+    else:
+        form = UserCreationForm()
+    return render(request, 'register.html', {'form': form})
 
 # --- Class-Based View: Library details + books ---
 class LibraryDetailView(DetailView):
