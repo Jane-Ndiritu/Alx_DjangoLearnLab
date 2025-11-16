@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Users - Admin Dashboard</title>
+</head>
+<body>
+    <div class="header">
+        <h1>Library Management System - User Management</h1>
+        <div class="user-info">
+            <span>Welcome, {{ user.username }} (Admin)</span>
+            <a href="{% url 'admin_dashboard' %}" class="btn">Dashboard</a>
+            <a href="{% url 'logout' %}" class="btn logout">Logout</a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="breadcrumb">
+            <a href="{% url 'admin_dashboard' %}">Admin Dashboard</a> > User Management
+        </div>
+        
+        <h2>User Management</h2>
+        <p>Manage user roles and permissions across the system.</p>
+        
+        <div class="user-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Join Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user_obj in users %}
+                    <tr>
+                        <td>{{ user_obj.username }}</td>
+                        <td>{{ user_obj.email }}</td>
+                        <td>
+                            <span class="role-badge role-{{ user_obj.profile.role|lower }}">
+                                {{ user_obj.profile.role }}
+                            </span>
+                        </td>
+                        <td>{{ user_obj.date_joined|date:"M d, Y" }}</td>
+                        <td>
+                            {% if user_obj.is_active %}
+                                <span style="color: #27ae60;">Active</span>
+                            {% else %}
+                                <span style="color: #e74c3c;">Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <form method="post" action="{% url 'change_user_role' user_obj.id %}" style="display: inline;">
+                                {% csrf_token %}
+                                <select name="role" onchange="this.form.submit()">
+                                    <option value="Member" {% if user_obj.profile.role == 'Member' %}selected{% endif %}>Member</option>
+                                    <option value="Librarian" {% if user_obj.profile.role == 'Librarian' %}selected{% endif %}>Librarian</option>
+                                    <option value="Admin" {% if user_obj.profile.role == 'Admin' %}selected{% endif %}>Admin</option>
+                                </select>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
