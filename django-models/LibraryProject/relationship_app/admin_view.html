@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Library Management System</title>
+</head>
+<body>
+    <div class="header">
+        <h1>Library Management System - Admin Dashboard</h1>
+        <div class="user-info">
+            <span>Welcome, {{ user.username }} (Admin)</span>
+            <a href="{% url 'logout' %}" class="btn logout">Logout</a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="dashboard-cards">
+            <div class="card">
+                <h3>Total Users</h3>
+                <div class="card-stat">{{ total_users }}</div>
+                <p>Registered in system</p>
+            </div>
+            <div class="card">
+                <h3>Librarians</h3>
+                <div class="card-stat">{{ total_librarians }}</div>
+                <p>Active librarians</p>
+            </div>
+            <div class="card">
+                <h3>Total Books</h3>
+                <div class="card-stat">{{ total_books }}</div>
+                <p>In library collection</p>
+            </div>
+            <div class="card">
+                <h3>Borrowed Books</h3>
+                <div class="card-stat">{{ borrowed_books }}</div>
+                <p>Currently checked out</p>
+            </div>
+        </div>
+        
+        <div class="admin-actions">
+            <div class="action-card">
+                <h3>User Management</h3>
+                <button class="btn btn-success">Add New User</button>
+                <button class="btn">View All Users</button>
+                <button class="btn btn-warning">Manage Roles</button>
+                
+                <div class="user-list">
+                    <h4>Recent Users</h4>
+                    {% for user in recent_users %}
+                    <div class="user-item">
+                        <span>{{ user.username }}</span>
+                        <span>{{ user.role }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="action-card">
+                <h3>Library Management</h3>
+                <button class="btn btn-success">Add New Library</button>
+                <button class="btn">Manage Libraries</button>
+                <button class="btn btn-warning">System Settings</button>
+                
+                <h4 style="margin-top: 1rem;">Library Statistics</h4>
+                <p>Active Libraries: {{ active_libraries }}</p>
+                <p>Total Branches: {{ total_branches }}</p>
+            </div>
+            
+            <div class="action-card">
+                <h3>System Administration</h3>
+                <button class="btn">Backup Database</button>
+                <button class="btn btn-warning">System Logs</button>
+                <button class="btn btn-danger">System Maintenance</button>
+                
+                <h4 style="margin-top: 1rem;">System Status</h4>
+                <p>Server: Running</p>
+                <p>Database: Connected</p>
+                <p>Last Backup: {{ last_backup }}</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
