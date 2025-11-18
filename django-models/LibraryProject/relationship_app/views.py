@@ -3,6 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.http import HttpResponseForbidden
 from .models import UserProfile, Book, Library, BorrowRecord
+from django.contrib.auth import login
+from django.contrib.auth.forms import UserCreationForm
 
 # Custom decorator to check if user has Admin role
 def admin_required(view_func):
