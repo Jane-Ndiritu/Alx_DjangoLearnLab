@@ -1,50 +1,74 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseForbidden
 from django.contrib.auth.models import User
-from .models import Book, Library, UserProfile
+from django.http import HttpResponseForbidden
+from .models import UserProfile, Book, Library, BorrowRecord
 
-# Custom decorator that explicitly checks for Admin role
+# Custom decorator to check if user has Admin role
 def admin_required(view_func):
-    def _wrapped_view(request, *args, **kwargs):
+    def wrapper(request, *args, **kwargs):
         if not request.user.is_authenticated:
             return redirect('login')
-        
-        # EXPLICIT Admin role check - this is what the checker wants
         try:
-            user_profile = UserProfile.objects.get(user=request.user)
-            if user_profile.role == 'Admin':
-                return view_func(request, *args, **kwargs)
-            else:
-                return HttpResponseForbidden("Access denied. Admin role required.")
+            if request.user.profile.role != 'Admin':
+                return HttpResponseForbidden("You don't have permission to access this page.")
         except UserProfile.DoesNotExist:
-            return HttpResponseForbidden("User profile not found.")
-    
-    return _wrapped_view
+            return HttpResponseForbidden("You don't have permission to access this page.")
+        return view_func(request, *args, **kwargs)
+    return wrapper
 
-# Admin view that ONLY Admin role can access
+# Admin dashboard view
 @login_required
 @admin_required
 def admin_dashboard(request):
-    # This view is only accessible to users with Admin role
+    # Get statistics for the admin dashboard
     total_users = User.objects.count()
+    total_librarians = UserProfile.objects.filter(role='Librarian').count()
+    total_members = UserProfile.objects.filter(role='Member').count()
     total_books = Book.objects.count()
     total_libraries = Library.objects.count()
+    borrowed_books = BorrowRecord.objects.filter(is_returned=False).count()
+    
+    # Recent users for display
+    recent_users = User.objects.all().order_by('-date_joined')[:5]
     
     context = {
         'total_users': total_users,
-        'total_books': total_books, 
+        'total_librarians': total_librarians,
+        'total_members': total_members,
+        'total_books': total_books,
         'total_libraries': total_libraries,
+        'borrowed_books': borrowed_books,
+        'recent_users': recent_users,
+        'active_libraries': total_libraries,  # Assuming all are active
+        'total_branches': total_libraries,    # Same as libraries for simplicity
+        'last_backup': '2024-01-15 14:30:00', # Example date
     }
-    return render(request, 'admin_dashboard.html', context)
+    return render(request, 'admin_view.html', context)
 
-# Regular views for all users
-def list_books(request):
-    books = Book.objects.all()
-    return render(request, 'books.html', {'books': books})
+# User management view for admins
+@login_required
+@admin_required
+def manage_users(request):
+    users = User.objects.all().select_related('profile')
+    context = {
+        'users': users
+    }
+    return render(request, 'manage_users.html', context)
 
-def register(request):
+# View to change user roles
+@login_required
+@admin_required
+def change_user_role(request, user_id):
     if request.method == 'POST':
-        # Registration logic here
-        pass
-    return render(request, 'register.html')
+        try:
+            user = User.objects.get(id=user_id)
+            new_role = request.POST.get('role')
+            if new_role in ['Admin', 'Librarian', 'Member']:
+                user.profile.role = new_role
+                user.profile.save()
+                # Add success message
+                return redirect('manage_users')
+        except User.DoesNotExist:
+            pass
+    return redirect('manage_users')
