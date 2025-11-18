@@ -5,7 +5,7 @@ from django.http import HttpResponseForbidden
 from .models import UserProfile, Book, Library, BorrowRecord
 from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
-
+from django.contrib.auth.decorators import user_passes_test
 
 # Custom decorator to check if user has Admin role
 def admin_required(view_func):
@@ -89,3 +89,13 @@ def register(request):
     else:
         form = UserCreationForm()
     return render(request, 'relationship_app/register.html', {'form': form}) 
+
+def is_admin(user):
+    try:
+        return user.profile.role == 'Admin'
+    except UserProfile.DoesNotExist:
+        return False 
+    
+@user_passes_test(is_admin)
+def admin_view(request):
+    return render(request, 'relationship_app/admin_view.html')
