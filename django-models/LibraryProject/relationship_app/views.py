@@ -6,6 +6,7 @@ from .models import UserProfile, Book, Library, BorrowRecord
 from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
 
+
 # Custom decorator to check if user has Admin role
 def admin_required(view_func):
     def wrapper(request, *args, **kwargs):
@@ -74,3 +75,17 @@ def change_user_role(request, user_id):
         except User.DoesNotExist:
             pass
     return redirect('manage_users')
+
+# User registration view
+def register(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            # Automatically create UserProfile with default role 'Member'
+            UserProfile.objects.create(user=user, role='Member')
+            login(request, user)
+            return redirect('book-list')
+    else:
+        form = UserCreationForm()
+    return render(request, 'relationship_app/register.html', {'form': form}) 
