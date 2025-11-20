@@ -3,6 +3,13 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
+class product(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    class Meta:
+        permissions = [
+            ("can_view_reports", "Can view reports"),
+
 class UserProfile(models.Model):
     # Role choices
     ROLE_CHOICES = (
