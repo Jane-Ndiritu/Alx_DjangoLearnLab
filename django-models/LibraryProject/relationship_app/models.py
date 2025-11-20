@@ -7,9 +7,9 @@ class product(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     class Meta:
-        permissions = [
+        permissions = (
             ("can_add_book", "can_change_book", "can_delete_book", "can_view_book"),
-        ]
+        )
 
 class UserProfile(models.Model):
     # Role choices
