@@ -8,7 +8,8 @@ class product(models.Model):
 
     class Meta:
         permissions = [
-            ("can_view_reports", "Can view reports"),
+            ("can_add_book", "can_change_book", "can_delete_book", "can_view_book"),
+        ]
 
 class UserProfile(models.Model):
     # Role choices
