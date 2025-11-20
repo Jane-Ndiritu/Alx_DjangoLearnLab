@@ -5,6 +5,9 @@ from .views import list_books
 
 urlpatterns = [
     path('books/', list_books, name='book-list'),
+    path('add_book/', list_books, name='book-list'),
+    path('edit_book/', list_books, name='book-list'),
+    path('delete_book/', list_books, name='book-list'),
     path('library/<int:pk>/', LibraryDetailView.as_view(), name='library-detail'),
     path('register/', register, name='register'),
     path('login/', LoginView.as_view(template_name='login.html'), name='login'),
