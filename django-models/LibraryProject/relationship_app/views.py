@@ -6,6 +6,7 @@ from .models import UserProfile, Book, Library, BorrowRecord
 from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import user_passes_test
+from django.views.generic import ListView
 
 # Custom decorator to check if user has Admin role
 def admin_required(view_func):
@@ -104,3 +105,9 @@ def admin_view(request):
 def list_books(request):
     books = Book.objects.all()
     return render(request, 'relationship_app/list_books.html', {'books': books})
+
+
+class LibraryListView(ListView):
+    model = Library
+    template_name = 'relationship_app/library_list.html'
+    context_object_name = 'libraries'
