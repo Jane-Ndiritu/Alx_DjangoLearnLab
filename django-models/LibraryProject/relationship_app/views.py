@@ -99,9 +99,30 @@ def is_admin(user):
     except UserProfile.DoesNotExist:
         return False 
     
+def is_member(user):
+    try:
+        return user.profile.role == 'Member'
+    except UserProfile.DoesNotExist:
+        return False 
+    
+def is_librarian(user):
+    try:
+        return user.profile.role == 'Librarian'
+    except UserProfile.DoesNotExist:
+        return False 
+    
 @user_passes_test(is_admin)
 def admin_view(request):
-    return render(request, 'admin_view.html')
+    return render(request, 'relationship_app/admin_view.html')
+
+@user_passes_test(is_member)
+def member_view(request):
+    return render(request, 'relationship_app/member_view.html')
+
+
+@user_passes_test(is_librarian)
+def librarian_view(request):
+    return render(request, 'relationship_app/librarian_view.html')
 
 
 def list_books(request):
