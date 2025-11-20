@@ -9,6 +9,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import user_passes_test
 from django.views.generic import ListView
 from django.views.generic.detail import DetailView
+from django.contrib.auth.decorators import permission_required
 
 # Custom decorator to check if user has Admin role
 def admin_required(view_func):
