@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Member Dashboard - Library Management System</title>
+</head>
+<body>
+    <div class="header">
+        <h1>Library Management System - Member Dashboard</h1>
+        <div class="user-info">
+            <span>Welcome, {{ user.username }} (Member)</span>
+            <a href="{% url 'logout' %}" class="btn logout">Logout</a>
+        </div>
+    </div>
+    
+    <div class="container">
+        {% if outstanding_fines > 0 %}
+        <div class="fine-alert">
+            <strong>Outstanding Fines:</strong> ${{ outstanding_fines }} - Please settle your fines to continue borrowing books.
+        </div>
+        {% endif %}
+        
+        <div class="member-stats">
+            <div class="stat-card">
+                <h3>Books Borrowed</h3>
+                <div class="stat-number">{{ current_borrowals }}</div>
+                <p>Currently with you</p>
+            </div>
+            <div class="stat-card">
+                <h3>Books Reserved</h3>
+                <div class="stat-number">{{ reserved_books }}</div>
+                <p>Waiting for pickup</p>
+            </div>
+            <div class="stat-card">
+                <h3>Reading History</h3>
+                <div class="stat-number">{{ reading_history }}</div>
+                <p>Books read</p>
+            </div>
+            <div class="stat-card">
+                <h3>Fines Due</h3>
+                <div class="stat-number">${{ outstanding_fines }}</div>
+                <p>Outstanding amount</p>
+            </div>
+        </div>
+        
+        <div class="dashboard-sections">
+            <div class="section-card">
+                <h3>Currently Borrowed</h3>
+                <div class="book-list">
+                    {% for book in borrowed_books %}
+                    <div class="book-item">
+                        <div class="book-info">
+                            <h4>{{ book.title }}</h4>
+                            <p>by {{ book.author }}</p>
+                            <p class="due-date">Due: {{ book.due_date }}</p>
+                        </div>
+                        <button class="btn">Renew</button>
+                    </div>
+                    {% empty %}
+                    <p>No books currently borrowed.</p>
+                    {% endfor %}
+                </div>
+                <button class="btn btn-success" style="margin-top: 1rem;">Borrow New Book</button>
+            </div>
+            
+            <div class="section-card">
+                <h3>Book Catalog</h3>
+                <p>Browse our collection of books</p>
+                <button class="btn" style="margin-top: 1rem;">Search Books</button>
+                <button class="btn">Browse by Category</button>
+                <button class="btn">New Arrivals</button>
+                
+                <div style="margin-top: 1rem;">
+                    <h4>Recommended for You</h4>
+                    {% for book in recommended_books %}
+                    <div class="book-item">
+                        <div class="book-info">
+                            <h4>{{ book.title }}</h4>
+                            <p>by {{ book.author }}</p>
+                        </div>
+                        <button class="btn btn-success">Reserve</button>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="section-card">
+                <h3>My Account</h3>
+                <div class="book-list">
+                    <div class="book-item">
+                        <span>Membership ID:</span>
+                        <span>{{ membership_id }}</span>
+                    </div>
+                    <div class="book-item">
+                        <span>Membership Type:</span>
+                        <span>{{ membership_type }}</span>
+                    </div>
+                    <div class="book-item">
+                        <span>Join Date:</span>
+                        <span>{{ join_date }}</span>
+                    </div>
+                    <div class="book-item">
+                        <span>Account Status:</span>
+                        <span style="color: #27ae60;">Active</span>
+                    </div>
+                </div>
+                
+                <button class="btn" style="margin-top: 1rem;">Update Profile</button>
+                <button class="btn">Change Password</button>
+                <button class="btn btn-warning">View Reading History</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

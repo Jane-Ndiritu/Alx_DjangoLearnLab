@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Librarian Dashboard - Library Management System</title>
+</head>
+<body>
+    <div class="header">
+        <h1>Library Management System - Librarian Dashboard</h1>
+        <div class="user-info">
+            <span>Welcome, {{ user.username }} (Librarian)</span>
+            <a href="{% url 'logout' %}" class="btn logout">Logout</a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="dashboard-cards">
+            <div class="card">
+                <h3>Books in Library</h3>
+                <div class="card-stat">{{ total_books }}</div>
+                <p>Available for borrowing</p>
+            </div>
+            <div class="card">
+                <h3>Active Members</h3>
+                <div class="card-stat">{{ active_members }}</div>
+                <p>Registered members</p>
+            </div>
+            <div class="card">
+                <h3>Books Borrowed</h3>
+                <div class="card-stat">{{ books_borrowed }}</div>
+                <p>Currently checked out</p>
+            </div>
+            <div class="card">
+                <h3>Overdue Books</h3>
+                <div class="card-stat">{{ overdue_books }}</div>
+                <p>Need attention</p>
+            </div>
+        </div>
+        
+        <div class="librarian-actions">
+            <div class="action-card">
+                <h3>Book Management</h3>
+                <button class="btn btn-success">Add New Book</button>
+                <button class="btn">Catalog Books</button>
+                <button class="btn">Manage Inventory</button>
+                
+                <div class="quick-stats">
+                    <h4>Inventory Status</h4>
+                    <div class="stat-item">
+                        <span>Available Books:</span>
+                        <span>{{ available_books }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Reserved Books:</span>
+                        <span>{{ reserved_books }}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="action-card">
+                <h3>Member Services</h3>
+                <button class="btn">Check Out Book</button>
+                <button class="btn">Process Returns</button>
+                <button class="btn btn-warning">Manage Fines</button>
+                
+                <div class="pending-actions">
+                    <h4>Pending Actions</h4>
+                    {% for action in pending_actions %}
+                    <div class="pending-item">
+                        <strong>{{ action.title }}</strong>
+                        <p>{{ action.description }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="action-card">
+                <h3>Reports & Analytics</h3>
+                <button class="btn">Borrowing Reports</button>
+                <button class="btn">Member Activity</button>
+                <button class="btn">Popular Books</button>
+                
+                <div class="quick-stats">
+                    <h4>Today's Activity</h4>
+                    <div class="stat-item">
+                        <span>Checkouts:</span>
+                        <span>{{ today_checkouts }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Returns:</span>
+                        <span>{{ today_returns }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>New Members:</span>
+                        <span>{{ new_members_today }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
