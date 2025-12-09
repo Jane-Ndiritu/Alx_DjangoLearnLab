@@ -1,9 +1,10 @@
 from django import forms
-from .models import Post
+from .models import Post, Comment
+
 
 class PostForm(forms.ModelForm):
     """Form for creating and updating blog posts"""
-    
+
     class Meta:
         model = Post
         fields = ['title', 'content']
@@ -25,35 +26,44 @@ class PostForm(forms.ModelForm):
         help_texts = {
             'content': 'Markdown formatting is supported.'
         }
-    
+
     def clean_title(self):
-        """Custom validation for title field"""
         title = self.cleaned_data.get('title')
-        
-        # Title length validation
+
         if len(title) < 5:
             raise forms.ValidationError("Title must be at least 5 characters long.")
         if len(title) > 200:
             raise forms.ValidationError("Title cannot exceed 200 characters.")
-        
-        # Check for profanity (simple example)
+
         banned_words = ['spam', 'advertisement', 'clickbait']
         for word in banned_words:
             if word in title.lower():
                 raise forms.ValidationError(f"Title contains inappropriate word: {word}")
-        
+
         return title
-    
+
     def clean_content(self):
-        """Custom validation for content field"""
         content = self.cleaned_data.get('content')
-        
-        # Minimum content length
+
         if len(content) < 50:
             raise forms.ValidationError("Content must be at least 50 characters long.")
-        
-        # Check content quality
         if len(content.split()) < 10:
             raise forms.ValidationError("Content seems too short. Please provide more detail.")
-        
+
         return content
+
+class CommentForm(forms.ModelForm):
+
+    class Meta:
+        model = Comment
+        fields = ['content']  
+        widgets = {
+            'content': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Write a comment...'
+            })
+        }
+        labels = {
+            'content': 'Comment'
+        }
