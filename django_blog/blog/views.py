@@ -94,3 +94,64 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         # Only allow post author to delete
         post = self.get_object()
         return self.request.user == post.author
+    
+    def post_detail(request, pk):
+    post = get_object_or_404(Post, pk=pk)
+    comments = post.comments.all()
+    form = CommentForm()
+
+    return render(request, 'blog/post_detail.html', {
+        'post': post,
+        'comments': comments,
+        'form': form
+    })
+# Comment creation view
+@login_required
+def add_comment(request, pk):
+    post = get_object_or_404(Post, pk=pk)
+    
+    if request.method == 'POST':
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.post = post
+            comment.author = request.user
+            comment.save()
+            return redirect('post_detail', pk=post.pk)
+    
+    return redirect('post_detail', pk=post.pk)
+
+#update comment view
+@login_required 
+def edit_comment(request, comment_id):
+    comment = get_object_or_404(Comment, id=comment_id)
+    
+    if request.user != comment.author:
+        return redirect('post_detail', pk=comment.post.pk)
+    
+    if request.method == 'POST':
+        form = CommentForm(request.POST, instance=comment)
+        if form.is_valid():
+            form.save()
+            return redirect('post_detail', pk=comment.post.pk)
+    else:
+        form = CommentForm(instance=comment)
+    
+    return render(request, 'blog/edit_comment.html', {'form': form, 'comment': comment})
+
+# Delete comment view
+@login_required
+def delete_comment(request, comment_id):    
+    comment = get_object_or_404(Comment, id=comment_id)
+    
+    if request.user != comment.author:
+        return redirect('post_detail', pk=comment.post.pk)
+    
+    if request.method == 'POST':
+        post_pk = comment.post.pk
+        comment.delete()
+        return redirect('post_detail', pk=post_pk)
+    
+    return render(request, 'blog/delete_comment.html', {'comment': comment})    
+
+
