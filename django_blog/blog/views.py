@@ -5,14 +5,9 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
-
 from django_blog.blog.forms import PostForm, CommentForm
 from django_blog.blog.models import Post, Comment
 
-
-# ------------------------------
-# AUTH VIEWS (function-based)
-# ------------------------------
 
 def login_view(request):
     if request.method == 'POST':
@@ -25,7 +20,6 @@ def login_view(request):
         form = AuthenticationForm()
     return render(request, 'blog/login.html', {'form': form})
 
-
 def register_view(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
@@ -37,15 +31,9 @@ def register_view(request):
         form = UserCreationForm()
     return render(request, 'blog/register.html', {'form': form})
 
-
 @login_required
 def profile_view(request):
     return render(request, 'blog/profile.html', {'user': request.user})
-
-
-# ------------------------------
-# POST VIEWS (CBV)
-# ------------------------------
 
 class PostListView(ListView):
     model = Post
@@ -53,7 +41,6 @@ class PostListView(ListView):
     context_object_name = 'posts'
     ordering = ['-created_at']  
     paginate_by = 10  
-
 
 class PostDetailView(DetailView):
     model = Post
@@ -67,7 +54,6 @@ class PostDetailView(DetailView):
         context['form'] = CommentForm()
         return context
 
-
 class PostCreateView(LoginRequiredMixin, CreateView):
     model = Post
     form_class = PostForm
@@ -79,7 +65,6 @@ class PostCreateView(LoginRequiredMixin, CreateView):
     
     def get_success_url(self):
         return reverse_lazy('post_detail', kwargs={'pk': self.object.pk})
-
 
 class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Post
@@ -97,7 +82,6 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     def get_success_url(self):
         return reverse_lazy('post_detail', kwargs={'pk': self.object.pk})
 
-
 class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Post
     template_name = 'blog/post_confirm_delete.html'
@@ -106,11 +90,6 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     def test_func(self):
         post = self.get_object()
         return self.request.user == post.author
-
-
-# ------------------------------
-# COMMENT VIEWS (CBV)
-# ------------------------------
 
 class CommentCreateView(LoginRequiredMixin, CreateView):
     model = Comment
@@ -149,11 +128,6 @@ class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
     def get_success_url(self):
         return reverse_lazy('post_detail', kwargs={'pk': self.object.post.pk})
-
-
-# ------------------------------
-# OPTIONAL: Function-based create comment (if template uses it)
-# ------------------------------
 
 @login_required
 def add_comment(request, pk):
