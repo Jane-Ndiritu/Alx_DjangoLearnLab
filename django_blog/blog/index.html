@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -20,7 +21,226 @@
 
     <div class="content">
         {% block content %}
-        <!-- Page-specific content goes here -->
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        <!-- PAGE 1: POST LIST (ListView) -->
+        {% if request.path == '/' or request.path == '/posts/' %}
+        <h1> All Blog Posts</h1>
+        
+        {% if user.is_authenticated %}
+        <a href="{% url 'post_create' %}" class="btn">+ Create New Post</a>
+        {% endif %}
+        
+        {% for post in posts %}
+        <div class="post-card">
+            <h2><a href="{% url 'post_detail' post.id %}">{{ post.title }}</a></h2>
+            <p class="post-meta">By {{ post.author }} | {{ post.created_at|date:"F d, Y" }}</p>
+            <p>{{ post.content|truncatewords:100 }}</p>
+            {% if user == post.author %}
+            <div class="post-actions">
+                <a href="{% url 'post_update' post.id %}">Edit</a> | 
+                <a href="{% url 'post_delete' post.id %}">Delete</a>
+            </div>
+            {% endif %}
+        </div>
+        {% empty %}
+        <p>No posts yet. {% if user.is_authenticated %}<a href="{% url 'post_create' %}">Create the first one!</a>{% endif %}</p>
+        {% endfor %}
+        
+        <!-- PAGE 2: POST DETAIL (DetailView) -->
+        {% elif 'post/' in request.path and 'update' not in request.path and 'delete' not in request.path %}
+        <article class="post-detail">
+            <h1>{{ post.title }}</h1>
+            <p class="post-meta">By {{ post.author }} | {{ post.created_at|date:"F d, Y" }}</p>
+            <div class="post-content">{{ post.content|linebreaks }}</div>
+            
+            <div class="post-actions">
+                <a href="{% url 'posts' %}">← Back to All Posts</a>
+                {% if user == post.author %}
+                | <a href="{% url 'post_update' post.id %}">Edit</a>
+                | <a href="{% url 'post_delete' post.id %}">Delete</a>
+                {% endif %}
+            </div>
+        </article>
+        
+        <!-- PAGE 3: POST FORM (CreateView/UpdateView) -->
+        {% elif 'post/new/' in request.path or 'update/' in request.path %}
+        <div class="form-container">
+            <h1>{% if form.instance.id %} Edit Post{% else %} Create New Post{% endif %}</h1>
+            
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="form-field">
+                    <label for="id_title">Title</label>
+                    {{ form.title }}
+                    {% if form.title.errors %}
+                    <div class="error">{{ form.title.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-field">
+                    <label for="id_content">Content</label>
+                    {{ form.content }}
+                    {% if form.content.errors %}
+                    <div class="error">{{ form.content.errors }}</div>
+                    {% endif %}
+                    <small>Minimum 50 characters</small>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn">
+                        {% if form.instance.id %}Update{% else %}Publish{% endif %}
+                    </button>
+                    <a href="{% if form.instance.id %}{% url 'post_detail' form.instance.id %}{% else %}{% url 'posts' %}{% endif %}" class="btn-cancel">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+        
+        <!-- PAGE 4: DELETE CONFIRMATION (DeleteView) -->
+        {% elif 'delete/' in request.path %}
+        <div class="delete-confirmation">
+            <h1>Delete Post</h1>
+            <div class="warning">
+                <p><strong>Are you sure you want to delete "{{ object.title }}"?</strong></p>
+                <p>This action cannot be undone.</p>
+            </div>
+            
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-actions">
+                    <button type="submit" class="btn-danger">Yes, Delete Permanently</button>
+                    <a href="{% url 'post_detail' object.id %}" class="btn">Cancel</a>
+                </div>
+            </form>
+        </div>
+        
+        <!-- PAGE 5: PROFILE PAGE -->
+        {% elif request.path == '/profile/' %}
+        <div class="profile-container">
+            <h1> {{ user.username }}'s Profile</h1>
+            
+            <div class="profile-info">
+                <p><strong>Email:</strong> {{ user.email|default:"Not provided" }}</p>
+                <p><strong>Member since:</strong> {{ user.date_joined|date:"F d, Y" }}</p>
+                <p><strong>Posts written:</strong> {{ user.post_set.count }}</p>
+            </div>
+            
+            <div class="profile-actions">
+                <a href="{% url 'post_create' %}" class="btn">+ Create New Post</a>
+                <a href="{% url 'posts' %}" class="btn">View My Posts</a>
+            </div>
+        </div>
+        
+        <!-- PAGE 6: LOGIN PAGE -->
+        {% elif request.path == '/login/' %}
+        <div class="auth-container">
+            <h1>Login</h1>
+            
+            <form method="post">
+                {% csrf_token %}
+                
+                {% if form.errors %}
+                <div class="alert-error">
+                    Your username and password didn't match.
+                </div>
+                {% endif %}
+                
+                <div class="form-field">
+                    <label for="id_username">Username</label>
+                    {{ form.username }}
+                </div>
+                
+                <div class="form-field">
+                    <label for="id_password">Password</label>
+                    {{ form.password }}
+                </div>
+                
+                <button type="submit" class="btn">Login</button>
+                <p>Don't have an account? <a href="{% url 'register' %}">Register here</a></p>
+            </form>
+        </div>
+        
+        <!-- PAGE 7: REGISTER PAGE -->
+        {% elif request.path == '/register/' %}
+        <div class="auth-container">
+            <h1> Create Account</h1>
+            
+            <form method="post">
+                {% csrf_token %}
+                
+                {% if form.errors %}
+                <div class="alert-error">
+                    Please correct the errors below.
+                </div>
+                {% endif %}
+                
+                <div class="form-field">
+                    <label for="id_username">Username</label>
+                    {{ form.username }}
+                    {% if form.username.errors %}
+                    <div class="error">{{ form.username.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-field">
+                    <label for="id_password1">Password</label>
+                    {{ form.password1 }}
+                    {% if form.password1.errors %}
+                    <div class="error">{{ form.password1.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-field">
+                    <label for="id_password2">Confirm Password</label>
+                    {{ form.password2 }}
+                    {% if form.password2.errors %}
+                    <div class="error">{{ form.password2.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <button type="submit" class="btn">Create Account</button>
+                <p>Already have an account? <a href="{% url 'login' %}">Login here</a></p>
+            </form>
+        </div>
+        
+        <!--DEFAULT CONTENT (Home Page) -->
+        {% else %}
+        <div class="welcome">
+            <h1>Welcome to Django Blog</h1>
+            <p>A complete blog platform with CRUD functionality built with Django.</p>
+            
+            <div class="features">
+                <h2> Features</h2>
+                <ul>
+                    <li>Create, Read, Update, Delete blog posts</li>
+                    <li>User authentication (Login/Register)</li>
+                    <li>Author-only post editing</li>
+                    <li>Responsive design</li>
+                    <li>Clean, modern interface</li>
+                </ul>
+            </div>
+            
+            <div class="cta">
+                {% if user.is_authenticated %}
+                <a href="{% url 'post_create' %}" class="btn-primary">Create Your First Post</a>
+                {% else %}
+                <a href="{% url 'register' %}" class="btn-primary">Join Now</a>
+                <a href="{% url 'login' %}" class="btn">Login</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
         {% endblock %}
     </div>
 
