@@ -1,20 +1,14 @@
-from django.urls import path
-from .views import (
-    PostListView, PostDetailView, PostCreateView,
-    PostUpdateView, PostDeleteView,
-    add_comment_view, update_comment_view, delete_comment_view
-)
-from . import views
+from django.views.generic import ListView
+from django_blog.blog.models import Post
 
-urlpatterns = [
-    # POSTS
-    path('', PostListView.as_view(), name='post_list'),
-    path('post/<int:pk>/', PostDetailView.as_view(), name='post_detail'),
-    path('post/new/', PostCreateView.as_view(), name='post_create'),
-    path('post/<int:pk>/update/', PostUpdateView.as_view(), name='post_update'),
-    path('post/<int:pk>/delete/', PostDeleteView.as_view(), name='post_delete'),
+class PostByTagListView(ListView):
+    model = Post
+    template_name = 'blog/post_list.html'
+    context_object_name = 'posts'
+    paginate_by = 10
 
-    path('post/<int:pk>/comments/new/', add_comment_view, name='comment_create'),
-    path('comment/<int:pk>/update/', update_comment_view, name='comment_update'),
-    path('comment/<int:pk>/delete/', delete_comment_view, name='comment_delete'),
-]
+    def get_queryset(self):
+        tag_slug = self.kwargs.get('tag_slug')
+        if tag_slug:
+            return Post.objects.filter(tags__slug=tag_slug).distinct().order_by('-created_at')
+        return Post.objects.all().order_by('-created_at')
