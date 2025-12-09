@@ -35,3 +35,8 @@ class FineAdmin(admin.ModelAdmin):
     list_display = ['user', 'amount', 'reason', 'issue_date', 'is_paid']
     list_filter = ['is_paid', 'issue_date']
     search_fields = ['user__username']
+@ModelAdmin.register(UserProfile)
+class UserProfileAdmin(admin.ModelAdmin):
+    list_display = ['user', 'role', 'phone_number', 'membership_id', 'is_active']
+    list_filter = ['role', 'is_active']
+    search_fields = ['user__username', 'user__email', 'membership_id']

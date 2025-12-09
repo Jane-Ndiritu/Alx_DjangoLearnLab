@@ -99,31 +99,31 @@ A full-featured blog application built with Django, implementing complete CRUD o
 
 ##  Project Structure
 django_blog/
-├── blog/ # Main application
-│ ├── migrations/ # Database migrations
-│ ├── templates/blog/ # HTML templates
-│ │ ├── base.html # Base template
-│ │ ├── post_list.html # All posts view
-│ │ ├── post_detail.html # Single post view
-│ │ ├── post_form.html # Create/Edit form
-│ │ ├── post_confirm_delete.html # Delete confirmation
-│ │ ├── login.html # Login page
-│ │ ├── register.html # Registration page
-│ │ └── profile.html # User profile
+├── blog/ 
+│ ├── migrations/ 
+│ ├── templates/blog/ 
+│ │ ├── base.html
+│ │ ├── post_list.html 
+│ │ ├── post_detail.html 
+│ │ ├── post_form.html 
+│ │ ├── post_confirm_delete.html 
+│ │ ├── login.html 
+│ │ ├── register.html 
+│ │ └── profile.html
 │ ├── init.py
-│ ├── admin.py # Admin configuration
+│ ├── admin.py 
 │ ├── apps.py
-│ ├── forms.py # Post form with validation
-│ ├── models.py # Post and UserProfile models
+│ ├── forms.py 
+│ ├── models.py 
 │ ├── tests.py
-│ ├── urls.py # URL routing
-│ └── views.py # All views (CBVs + FBVs)
-├── static/ # Static files
+│ ├── urls.py 
+│ └── views.py 
+├── static/ 
 │ ├── css/
-│ │ └── styles.css # Custom styles
+│ │ └── styles.css 
 │ └── js/
-│ └── scripts.js # JavaScript utilities
-├── templates/ # Project-level templates
-│ └── registration/ # Auth templates
+│ └── scripts.js 
+├── templates/
+│ └── registration/ 
 ├── manage.py
-└── requirements.txt # Dependencies
+└── requirements.txt 

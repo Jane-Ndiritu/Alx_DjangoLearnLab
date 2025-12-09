@@ -31,7 +31,8 @@ class UserProfile(models.Model):
     date_of_birth = models.DateField(blank=True, null=True)
     membership_id = models.CharField(max_length=20, blank=True, null=True, unique=True)
     join_date = models.DateTimeField(auto_now_add=True)
-    
+    profile_photo = models.ImageField(upload_to='profile_photos/', blank=True, null=True)   
+
     # Library-specific fields
     max_borrow_limit = models.PositiveIntegerField(default=5)
     is_active = models.BooleanField(default=True)
@@ -147,3 +148,7 @@ class Fine(models.Model):
     
     class Meta:
         ordering = ['-issue_date']
+
+    class CustomUser(AbstractUser):
+        pass: date_of_birth = models.DateField(blank=True, null=True)
+profile_photo = models.ImageField(upload_to='profile_photos/', blank=True, null=True)
