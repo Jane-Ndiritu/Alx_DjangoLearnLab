@@ -1,6 +1,9 @@
 from rest_framework import serializers
-from .models import CustomUser
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, get_user_model
+from rest_framework.authtoken.models import Token
+
+CustomUser = get_user_model()
+
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -15,21 +18,30 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             email=validated_data['email'],
             password=validated_data['password'],
             bio=validated_data.get('bio', ''),
-            profile_picture=validated_data.get('profile_picture', None)
+            profile_picture=validated_data.get('profile_picture')
         )
-        return user
-    
-    class LoginSerializer(serializers.Serializer):
-        username = serializers.CharField()
-        password = serializers.CharField(write_only=True)
 
-        def validate(self, data):
-            user = authenticate(username=data['username'], password=data['password'])
-            if user and user.is_active:
-                return user
-            raise serializers.ValidationError("Invalid username or password.")
-        
-        class UserSerializer(serializers.ModelSerializer):
-            class Meta:
-                model = CustomUser
-                fields = ['id', 'username', 'email', 'bio', 'profile_picture', 'followers', 'following']
+        # 🔥 Create authentication token automatically
+        Token.objects.create(user=user)
+
+        return user
+
+
+class LoginSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    password = serializers.CharField(write_only=True)
+
+    def validate(self, data):
+        user = authenticate(
+            username=data['username'],
+            password=data['password']
+        )
+        if user and user.is_active:
+            return user
+        raise serializers.ValidationError("Invalid username or password.")
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ['id', 'username', 'email', 'bio', 'profile_picture', 'followers', 'following']
