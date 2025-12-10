@@ -1,17 +1,18 @@
 from django.shortcuts import render
-from rest_framework.views import APIView
+from rest_framework import viewsets, permissions, status
+from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.authtoken.models import Token
-from rest_framework.permissions import AllowAny
-
+from rest_framework.permissions import BasePermission, SAFE_METHODS, IsAuthenticated
+from django.contrib.auth.models import User
+from .models import Post, Comment
+from .serializers import PostSerializer, CommentSerializer
 
 class IsOwnerOrReadOnly(BasePermission):
     """
     Object-level permission to only allow owners of an object to edit or delete it.
-    Read-only requests are allowed for any user.
+    Read-only requests are allowed for any request.
     """
-
+    
     def has_object_permission(self, request, view, obj):
         # Read permissions are allowed to any request
         if request.method in SAFE_METHODS:
