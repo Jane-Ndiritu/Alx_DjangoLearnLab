@@ -1,9 +1,14 @@
 from django.shortcuts import render
-from rest_framework import viewsets, permissions, status
+from rest_framework import viewsets, status, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import BasePermission, SAFE_METHODS, IsAuthenticated
 from django.contrib.auth.models import User
+from .models import Post, Comment
+from .serializers import PostSerializer, CommentSerializer
+
+# Make sure these are imported
+from rest_framework import viewsets
 from .models import Post, Comment
 from .serializers import PostSerializer, CommentSerializer
 
@@ -25,6 +30,7 @@ class PostViewSet(viewsets.ModelViewSet):
     ViewSet for CRUD operations on Posts.
     Only the author can update or delete their posts.
     """
+    # This must be exactly Post.objects.all()
     queryset = Post.objects.all().order_by('-created_at')
     serializer_class = PostSerializer
     permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
@@ -37,6 +43,7 @@ class CommentViewSet(viewsets.ModelViewSet):
     ViewSet for CRUD operations on Comments.
     Only the author can update or delete their comments.
     """
+    # This must be exactly Comment.objects.all()
     queryset = Comment.objects.all().order_by('-created_at')
     serializer_class = CommentSerializer
     permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
