@@ -52,7 +52,7 @@ class ProfileView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-    
+
 class IsOwnerOrReadOnly(BasePermission):
     """
     Object-level permission to only allow owners of an object to edit or delete it.
