@@ -11,10 +11,6 @@ from .serializers import (
 
 CustomUser = get_user_model()
 
-
-# -------------------------
-# REGISTER USER
-# -------------------------
 class RegisterView(generics.GenericAPIView):
     serializer_class = UserRegistrationSerializer
     permission_classes = [permissions.AllowAny]
@@ -33,10 +29,6 @@ class RegisterView(generics.GenericAPIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-# -------------------------
-# LOGIN USER
-# -------------------------
 class LoginView(generics.GenericAPIView):
     serializer_class = LoginSerializer
     permission_classes = [permissions.AllowAny]
@@ -55,10 +47,6 @@ class LoginView(generics.GenericAPIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-# -------------------------
-# PROFILE VIEW (GET + UPDATE)
-# -------------------------
 class ProfileView(generics.GenericAPIView):
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -79,3 +67,11 @@ class ProfileView(generics.GenericAPIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class UserListView(generics.GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        users = CustomUser.objects.all()  
+        serializer = UserSerializer(users, many=True)
+        return Response(serializer.data)
