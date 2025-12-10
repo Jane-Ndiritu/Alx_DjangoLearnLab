@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import authenticate, get_user_model
 from rest_framework.authtoken.models import Token
-
+from social_media_api.posts.models import Post
 CustomUser = get_user_model()
 
 
@@ -40,8 +40,42 @@ class LoginSerializer(serializers.Serializer):
             return user
         raise serializers.ValidationError("Invalid username or password.")
 
-
+#comment Serializer
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ['id', 'username', 'email', 'bio', 'profile_picture', 'followers', 'following']
+
+        class PostSerializer(serializers.ModelSerializer):
+            author = serializers.ReadOnlyField(source='author.username')    
+            comments = serializers.PrimaryKeyRelatedField(
+                many=True, 
+                read_only=True
+        )
+            class Meta:
+                model = Post
+                fields = ['id', 'author', 'title', 'content', 'created_at', 'updated_at', 'comments']
+
+                def validate_title(self, value):
+                    if len(value) < 5:
+                        raise serializers.ValidationError("Title must be at least 5 characters long.")
+                    return value
+                
+                def validate_content(self, value):
+                    if len(value) < 20:
+                        raise serializers.ValidationError("Content must be at least 20 characters long.")
+                    return value
+                
+#comment Serializer
+class CommentSerializer(serializers.ModelSerializer):
+    author = serializers.ReadOnlyField(source='author.username')
+    post = serializers.ReadOnlyField(source='post.id')
+
+    class Meta:
+        model = Post
+        fields = ['id', 'post', 'author', 'content', 'created_at', 'updated_at']
+
+        def validate_content(self, value):
+            if not value.strip():
+                raise serializers.ValidationError("Comment content cannot be empty.")   
+            return value
