@@ -1,4 +1,4 @@
-from rest_framework.generics import get_object_or_404
+from rest_framework.generics import generics.get_object_or_404
 from rest_framework import generics, permissions, viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
