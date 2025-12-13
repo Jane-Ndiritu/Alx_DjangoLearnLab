@@ -1,22 +1,32 @@
 from django.db import models
-from django.contrib.auth import get_user_model
-from posts.models import Post
+from django.conf import settings
+from django.utils import timezone
 
-User = get_user_model()
+User = settings.AUTH_USER_MODEL
 
 class Notification(models.Model):
-    NOTIF_TYPE_CHOICES = [
-        ('follow', 'Follow'),
-        ('like', 'Like'),
-        ('comment', 'Comment'),
-    ]
+    actor = models.ForeignKey(
+        User,
+        related_name='notifications_sent',
+        on_delete=models.CASCADE
+    )  # Who triggered the notification
 
-    recipient = models.ForeignKey(User, related_name='notifications', on_delete=models.CASCADE)
-    sender = models.ForeignKey(User, related_name='sent_notifications', on_delete=models.CASCADE)
-    notification_type = models.CharField(max_length=20, choices=NOTIF_TYPE_CHOICES)
-    post = models.ForeignKey(Post, null=True, blank=True, on_delete=models.CASCADE)
-    read = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
+    verb = models.CharField(max_length=255)  # What happened, e.g., "liked your post"
+    target = models.ForeignKey(
+        'posts.Post',  # Or another model that is the target
+        related_name='notifications',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True
+    )
+    recipient = models.ForeignKey(
+        User,
+        related_name='notifications',
+        on_delete=models.CASCADE
+    )  # Who receives the notification
+
+    timestamp = models.DateTimeField(default=timezone.now)
+    is_read = models.BooleanField(default=False)  # Optional: track read/unread
 
     def __str__(self):
-        return f"{self.sender} -> {self.recipient} ({self.notification_type})"
+        return f'{self.actor} {self.verb} {self.target} for {self.recipient}'
