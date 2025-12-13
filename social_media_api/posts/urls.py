@@ -7,7 +7,10 @@ router.register('posts', PostViewSet, basename='posts')
 router.register('comments', CommentViewSet, basename='comments')
 
 urlpatterns = [
-    path('feed/', FeedView.as_view(), name='feed'),
+    path('', FeedView.as_view(), name='feed'),
+    path('<int:pk>/like/', LikePostView.as_view(), name='like-post'),
+    path('<int:pk>/unlike/', UnlikePostView.as_view(), name='unlike-post'),
+    path('comments/', CommentViewSet.as_view({'get': 'list', 'post': 'create'}), name='comments'),
 ]
 
 urlpatterns += router.urls

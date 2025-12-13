@@ -24,4 +24,5 @@ urlpatterns = [
     path('api/posts/', include('posts.urls')),
     path('register/', RegisterView.as_view(), name='register'),
     path('login/', LoginView.as_view(), name='login'),
+    path('api/notifications/', include('notifications.url')),
 ]
