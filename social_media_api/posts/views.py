@@ -1,12 +1,10 @@
-from django.shortcuts import render
-from rest_framework import generics, permissions, status,viewsets,status
+from django.shortcuts import get_object_or_404
+from rest_framework import generics, permissions, viewsets, status
 from rest_framework.response import Response
-from django.db.models import Q
+from rest_framework.decorators import action
 from .models import Post, Like
 from notifications.models import Notification
 from ..accounts.serializers import PostSerializer
-from rest_framework.decorators import action
-from django.shortcuts import get_object_or_404  
 
 
 class FeedView(generics.ListAPIView):
@@ -14,14 +12,15 @@ class FeedView(generics.ListAPIView):
     View to show posts from users that the current user follows
     """
     serializer_class = PostSerializer
-    permission_classes = [permissions.IsAuthenticated] 
-    
+    permission_classes = [permissions.IsAuthenticated]
+
     def get_queryset(self):
         user = self.request.user
         following_users = user.following.all()
         return Post.objects.filter(author__in=following_users).order_by('-created_at')
-    
-    class PostViewSet(viewsets.ModelViewSet):
+
+
+class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
 
@@ -30,7 +29,6 @@ class FeedView(generics.ListAPIView):
         post = get_object_or_404(Post, pk=pk)
         like, created = Like.objects.get_or_create(user=request.user, post=post)
         if created:
-            # Create notification for the post author
             if post.author != request.user:
                 Notification.objects.create(
                     actor=request.user,
