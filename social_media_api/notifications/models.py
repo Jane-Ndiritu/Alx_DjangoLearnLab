@@ -9,11 +9,11 @@ class Notification(models.Model):
         User,
         related_name='notifications_sent',
         on_delete=models.CASCADE
-    )  # Who triggered the notification
+    )  
 
-    verb = models.CharField(max_length=255)  # What happened, e.g., "liked your post"
+    verb = models.CharField(max_length=255) 
     target = models.ForeignKey(
-        'posts.Post',  # Or another model that is the target
+        'posts.Post',  
         related_name='notifications',
         on_delete=models.CASCADE,
         null=True,
@@ -23,10 +23,10 @@ class Notification(models.Model):
         User,
         related_name='notifications',
         on_delete=models.CASCADE
-    )  # Who receives the notification
+    )  
 
     timestamp = models.DateTimeField(default=timezone.now)
-    is_read = models.BooleanField(default=False)  # Optional: track read/unread
+    is_read = models.BooleanField(default=False) 
 
     def __str__(self):
         return f'{self.actor} {self.verb} {self.target} for {self.recipient}'
