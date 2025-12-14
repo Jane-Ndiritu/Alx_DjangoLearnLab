@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from decouple import config
 SECRET_KEY = config('SECRET_KEY')   
 DEBUG = config('DEBUG', default=False, cast=bool)
+PORT = config('PORT', default=8000, cast=int)
 
 
 from pathlib import Path
