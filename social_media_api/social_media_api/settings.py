@@ -9,6 +9,10 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
+from decouple import config
+SECRET_KEY = config('SECRET_KEY')   
+DEBUG = config('DEBUG', default=False, cast=bool)
+
 
 from pathlib import Path
 
@@ -115,6 +119,7 @@ USE_I18N = True
 
 USE_TZ = True
 
+DEBUG = False
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
@@ -126,3 +131,10 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'accounts.CustomUser'
+
+ALLOWED_HOSTS = [
+    'yourdomain.com',
+    'www.yourdomain.com',
+    'api.yourdomain.com',
+    '127.0.0.1',        # optional for internal checks
+]
